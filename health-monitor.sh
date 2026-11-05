@@ -33,6 +33,12 @@ log() {
 alert() {
 	local msg="$1"
 	log ERROR "ALERT: $msg"
+	# optional Slack webhook (only if a URL is configured and curl exists)
+	if [ -n "$SLACK_WEBHOOK_URL" ] && command -v curl >/dev/null; then
+		curl -s -X POST -H 'Content-type: application/json' \
+			-d "{\"text\":\"[$(hostname)] $msg\"}" "$SLACK_WEBHOOK_URL" >/dev/null \
+			log WARN "failed to post to Slack webhook"
+	fi
 }
 
 #---------------- ONE REUSABLE CHECKER ---------------- 
